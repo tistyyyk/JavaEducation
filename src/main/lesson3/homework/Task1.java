@@ -34,7 +34,7 @@ public class Task1 {
 
     private static void hotOrCold() {
         int hiddenNumber = random.nextInt(DIAPAZON);
-        System.out.println(hiddenNumber);
+        //System.out.println(hiddenNumber);
         int userNumber = -1;
         int i = COUNT;
         boolean result = false;
