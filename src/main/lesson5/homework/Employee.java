@@ -1,25 +1,31 @@
 package main.lesson5.homework;
 
+import java.util.Random;
+
 public class Employee {
+    static final Random random = new Random();
+    private String name;
+    private String position;
+    private String email;
+    private String phone;
+    private double salary;
+    private int age;
 
-    protected String name;
-    protected String position;
-    protected String email;
-    protected String phone;
-    protected double salary;
-    protected int age;
-
-    public Employee(String name, String position, String email, String phone, double salary, int age) {
+    public Employee(String name, String position, String email, String phone, double salary) {
         this.name = name;
         this.position = position;
         this.email = email;
         this.phone = phone;
         this.salary = salary;
-        this.age = age;
+        age = random.nextInt(65);
     }
 
-    void printData() {
+    public void printData() {
         System.out.println(this);
+    }
+
+    public int getAge() {
+        return this.age;
     }
 
     @Override
