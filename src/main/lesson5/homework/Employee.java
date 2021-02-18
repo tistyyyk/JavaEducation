@@ -17,7 +17,7 @@ public class Employee {
         this.email = email;
         this.phone = phone;
         this.salary = salary;
-        age = random.nextInt(65);
+        age = random.nextInt(50)+18;
     }
 
     public void printData() {
