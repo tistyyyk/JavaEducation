@@ -11,6 +11,8 @@ public class Task2 {
     static final int SIZE = 25;
     static final char FILL = '#';
     static final String FULFILL = "#############";
+    static String result = "";
+    static int counter = -1;
 
     public static void main(String[] args) {
         guessWord();
@@ -29,17 +31,22 @@ public class Task2 {
 
     private static void wordsCompare(String hiddenWord, String userWord) {
         int length = findLength(hiddenWord.length(), userWord.length());
-        String result = "";
-        int counter = -1;
         for (int i = 0; i < length; i++) {
             if (hiddenWord.charAt(i) == userWord.charAt(i)) {
-                result+=hiddenWord.charAt(i);
-                counter = i;
+                if(i > result.length()-1){
+                    result+=hiddenWord.charAt(i);
+                    counter = i;
+                } else {
+                    char[] resultMas = result.toCharArray();
+                    resultMas[i]= hiddenWord.charAt(i);
+                    result = String.valueOf(resultMas);
+                    counter = i;
+                }
             } else {
                 result+=FILL;
             }
         }
-        if (!result.equals(hiddenWord)){
+        if (!result.substring(0,counter+1).equals(hiddenWord)){
             System.out.println(result.substring(0, counter+1)+FULFILL);
         }
     }
@@ -64,20 +71,17 @@ public class Task2 {
     }
 
     private static String userWord() {
-        String word = "";
-        do {
-            word = in.nextLine();
-        } while (!checkCorrect(word));
+        String word = in.nextLine();
         return word;
     }
 
-    private static boolean checkCorrect(String word) {
-        for (int i = 0; i < SIZE; i++) {
-            if (words[i].equals(word)) {
-                return true;
-            }
-        }
-        System.out.println("Такого слова у нас нет");
-        return false;
-    }
+//    private static boolean checkCorrect(String word) {
+//        for (int i = 0; i < SIZE; i++) {
+//            if (words[i].equals(word)) {
+//                return true;
+//            }
+//        }
+//        System.out.println("Такого слова у нас нет");
+//        return false;
+//    }
 }
