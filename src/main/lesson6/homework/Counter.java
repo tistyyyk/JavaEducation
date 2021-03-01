@@ -4,6 +4,7 @@ public class Counter {
     private static Counter instance;
     protected int numberOfCats;
     protected int numberOfDogs;
+    protected int numberOfAnimals;
 
     private Counter() {}
 
@@ -14,14 +15,6 @@ public class Counter {
         return instance;
     }
 
-    public int getNumberOfCats(){
-        return numberOfCats;
-    }
-
-    public int getGetNumberOfDogs(){
-        return numberOfDogs;
-    }
-
     public void addNumberOfCats() {
         numberOfCats++;
     }
@@ -30,11 +23,19 @@ public class Counter {
         numberOfDogs++;
     }
 
+    public void addNumberOfAnimals() {
+        numberOfAnimals++;
+    }
+
     public void printNumberOfCats() {
         System.out.println("Всего кошек - " + numberOfCats);
     }
 
     public void printNumberOfDogs() {
         System.out.println("Всего собак - " + numberOfDogs);
+    }
+
+    public void printNumberOfAnimals() {
+        System.out.println("Всего животных - " + numberOfAnimals);
     }
 }

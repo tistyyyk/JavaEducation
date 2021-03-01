@@ -33,5 +33,6 @@ public class Main {
 
         counter.printNumberOfCats();
         counter.printNumberOfDogs();
+        counter.printNumberOfAnimals();
     }
 }

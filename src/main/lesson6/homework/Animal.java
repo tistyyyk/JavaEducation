@@ -4,11 +4,13 @@ public abstract class Animal {
     private String name;
     private String gender;
     private String feminine = "";
+    private Counter counter = Counter.getInstance();
 
 
     public Animal (String gender, String name) {
         this.gender = gender;
         this.name = name;
+        counter.addNumberOfAnimals();
     }
 
     public Animal() {
