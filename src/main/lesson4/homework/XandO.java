@@ -203,23 +203,20 @@ public class XandO {
     // Новая функция умного хода  AI
 
     private static void aiTurn() {
-        String[] surroundings = new String[4];
-        initializeResults(surroundings);
 
         System.out.println("Ход компьютера:");
 
         updateDangerMap();
-        analyzeHumanTurn(surroundings);
+        analyzeHumanTurn();
 
         MAP[rowNumberAI][columnNumberAI] = DOT_AI;
 
         turnsCount++;
     }
 
-    private static void analyzeHumanTurn(String[] surroundings) {
+    private static void analyzeHumanTurn() {
 
         if (!isDangerousSituation()) {
-            getSurroundings(surroundings);
             searchForMaxDangerousPlace();
         }
     }
@@ -298,7 +295,7 @@ public class XandO {
                 break;
             case (3):
                 if (columnNumberHuman+1 < SIZE) {
-                    row = columnNumberHuman+1;
+                    column = columnNumberHuman+1;
                 } else {
                     column = columnNumberHuman-2;
                 }
@@ -378,49 +375,6 @@ public class XandO {
             }
         }
     }
-
-    private static void getSurroundings(String[] surroundings) {
-        int count = 0;
-        int j;
-
-        for (int i = 0; i < SIZE; i++) {
-            surroundings[count]+=MAP[i][rowNumberHuman];
-        }
-        count++;
-
-        for (int i = 0; i < SIZE; i++) {
-            surroundings[count]+=MAP[columnNumberHuman][i];
-        }
-        count++;
-
-        // основная диагональ
-        j=0;
-        while (j<SIZE-rowNumberHuman && j<SIZE-columnNumberHuman) {
-            surroundings[count]+=MAP[rowNumberHuman+j][columnNumberHuman+j];
-            j++;
-        }
-        j=1;
-        while (rowNumberHuman-j == 0 && columnNumberHuman-j ==0) {
-            surroundings[count]+=MAP[rowNumberHuman-j][columnNumberHuman-j];
-            j++;
-        }
-        count++;
-
-        //побочная диагональ
-        j=0;
-        while (j<SIZE-rowNumberHuman && columnNumberHuman-j ==0) {
-            surroundings[count]+=MAP[rowNumberHuman+j][columnNumberHuman-j];
-            j++;
-        }
-        j=1;
-        while (rowNumberHuman-j == 0 && j<SIZE-columnNumberHuman)  {
-            surroundings[count]+=MAP[rowNumberHuman-j][columnNumberHuman+j];
-            j++;
-        }
-
-        System.out.println(Arrays.toString(surroundings));
-    }
-
 
     //-----------------------------------------------
 
