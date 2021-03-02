@@ -6,7 +6,7 @@ import java.util.Scanner;
 
 public class XandO {
 
-    static final int SIZE = 5;
+    static final int SIZE = 3;
 
     static final char DOT_EMPTY = '•';
     static final char DOT_HUMAN = 'X';
@@ -18,9 +18,17 @@ public class XandO {
     static final char[][] MAP = new char[SIZE][SIZE];
     static final Scanner in = new Scanner(System.in);
     static final Random random = new Random();
-    static final int WINLENGTH = 4;
+    static final int WINLENGTH = 3;
 
     static int turnsCount;
+
+    static int rowNumberHuman;
+    static int columnNumberHuman;
+
+    static int rowNumberAI;
+    static int columnNumberAI;
+
+    static final int[][] dangerMap = new int[SIZE+2][SIZE+2];
 
     public static void main(String[] args) {
         turnGame();
@@ -193,20 +201,241 @@ public class XandO {
     }
 
     // --------------------------------------------
+    // Новая функция умного хода  AI
 
     private static void aiTurn() {
         int rowNumber;
         int columnNumber;
+       // String[] surroundings = new String[4];
 
         System.out.println("Ход компьютера:");
+
+        analyzeHumanTurn();
+
+        updateDangerMap();
+
+       // getSurroundings(surroundings);
+
+
 
         do{
           rowNumber = random.nextInt(SIZE);
           columnNumber = random.nextInt(SIZE);
         } while (!isCellOccupancy(rowNumber,columnNumber));
         MAP[rowNumber][columnNumber] = DOT_AI;
+
         turnsCount++;
     }
+
+    private static void analyzeHumanTurn() {
+        if (!isDangerousSituation()) {
+            searchForMaxDangerousPlace();
+        }
+    }
+
+    private static void searchForMaxDangerousPlace() {
+        int max = 0;
+        int row = 0;
+        int column = 0;
+
+        for (int i = 0; i < SIZE; i++){
+            for (int j = 0; j < SIZE; j++) {
+                if(dangerMap[i][j] > max && isCellOccupancy(i,j)) {
+                    max = dangerMap[i][j];
+                    row = i;
+                    column = j;
+                }
+            }
+        }
+
+        rowNumberAI = row;
+        columnNumberAI = column;
+    }
+
+    private static boolean isDangerousSituation() {
+        char[][] tempMap = new char[SIZE+2][SIZE+2];
+        int row = rowNumberHuman+1;
+        int column = columnNumberHuman+1;
+
+        for (int i = 0; i < SIZE; i++){
+            for (int j = 0; j < SIZE; j++) {
+                tempMap[i+1][j+1] = MAP[i][j];
+            }
+        }
+
+        if (DOT_HUMAN == tempMap[row - 1][column - 1]) {
+            return findPlace(1);
+        } else if (DOT_HUMAN == tempMap[row - 1][column]) {
+            return findPlace(2);
+        } else if (DOT_HUMAN == tempMap[row][column - 1]) {
+            return findPlace(3);
+        } else if (DOT_HUMAN == tempMap[row + 1][column + 1]) {
+            return findPlace(4);
+        } else if (DOT_HUMAN == tempMap[row + 1][column]) {
+            return findPlace(5);
+        } else if (DOT_HUMAN == tempMap[row][column + 1]) {
+            return findPlace(6);
+        } else if (DOT_HUMAN == tempMap[row + 1][column - 1]) {
+            return findPlace(7);
+        } else if (DOT_HUMAN == tempMap[row - 1][column + 1]) {
+            return findPlace(8);
+        } else {
+            return false;
+        }
+    }
+
+    private static boolean findPlace(int i) {
+        int row = 0;
+        int column =0;
+        switch (i) {
+            case (1):
+                if (rowNumberHuman+1 < SIZE && columnNumberHuman+1 < SIZE) {
+                    row = rowNumberHuman+1;
+                    column = columnNumberHuman+1;
+                } else {
+                    row = rowNumberHuman-2;
+                    column = columnNumberHuman-2;
+                }
+                break;
+            case (2):
+                if (rowNumberHuman+1 < SIZE) {
+                    row = rowNumberHuman+1;
+                } else {
+                    row = rowNumberHuman-2;
+                }
+                column = columnNumberHuman;
+                break;
+            case (3):
+                if (columnNumberHuman+1 < SIZE) {
+                    row = columnNumberHuman+1;
+                } else {
+                    column = columnNumberHuman-2;
+                }
+                row = rowNumberHuman;
+                break;
+            case (4):
+                if (columnNumberHuman-1 >= 0 && rowNumberHuman-1 >=0) {
+                    row = rowNumberHuman-1;
+                    column = columnNumberHuman-1;
+                } else {
+                    row = rowNumberHuman+2;
+                    column = columnNumberHuman+2;
+                }
+                break;
+            case (5):
+                if (rowNumberHuman-1 >=0) {
+                    row = rowNumberHuman-1;
+                } else {
+                    row = rowNumberHuman+2;
+                }
+                column = columnNumberHuman;
+                break;
+            case (6):
+                if (columnNumberHuman-1 >=0) {
+                    row = rowNumberHuman;
+                    column = columnNumberHuman-1;
+                } else {
+                    row = rowNumberHuman;
+                    column = columnNumberHuman+2;
+                }
+                break;
+            case (7):
+                if (rowNumberHuman-1 >=0 && columnNumberHuman+1 < SIZE) {
+                    row = rowNumberHuman-1;
+                    column = columnNumberHuman+1;
+                } else {
+                    row = rowNumberHuman+2;
+                    column = columnNumberHuman-2;
+                }
+                break;
+            case (8):
+                if (columnNumberHuman-1 >=0 && rowNumberHuman+1 < SIZE) {
+                    row = rowNumberHuman+1;
+                    column = columnNumberHuman-1;
+                } else {
+                    row = rowNumberHuman-2;
+                    column = columnNumberHuman+2;
+                }
+                break;
+            default:
+                break;
+        }
+        if (!isCellOccupancy(row,column)) {
+            rowNumberAI = row;
+            columnNumberAI = column;
+            return true;
+        } else return false;
+    }
+
+    private static void updateDangerMap() {
+        int[][] tempMap = new int[SIZE+2][SIZE+2];
+        int row = rowNumberHuman+1;
+        int column = columnNumberHuman+1;
+
+        tempMap[row-1][column-1]++;
+        tempMap[row-1][column]++;
+        tempMap[row][column-1]++;
+        tempMap[row+1][column+1]++;
+        tempMap[row+1][column]++;
+        tempMap[row][column+1]++;
+        tempMap[row+1][column-1]++;
+        tempMap[row-1][column+1]++;
+
+        for (int i = 0; i < SIZE; i++){
+            for (int j = 0; j < SIZE; j++) {
+                dangerMap[i][j]+=tempMap[i+1][j+1];
+            }
+        }
+
+        for (int i = 0; i < SIZE; i++){
+            for (int j = 0; j < SIZE; j++) {
+                System.out.print(dangerMap[i][j]);
+            }
+            System.out.println();
+        }
+
+    }
+
+    private static void getSurroundings(String[] surroundings) {
+        int count = 0;
+        int j;
+
+        for (int i = 0; i < SIZE; i++) {
+            surroundings[count]+=MAP[i][rowNumberHuman];
+        }
+        count++;
+
+        for (int i = 0; i < SIZE; i++) {
+            surroundings[count]+=MAP[columnNumberHuman][i];
+        }
+        count++;
+
+        // основная диагональ
+        j=0;
+        do {
+            surroundings[count]+=MAP[rowNumberHuman+j][columnNumberHuman+j];
+        } while (j<SIZE-rowNumberHuman || j<SIZE-columnNumberHuman);
+        j=1;
+        do {
+            surroundings[count]+=MAP[rowNumberHuman-j][columnNumberHuman-j];
+        } while (rowNumberHuman-j == 0 || columnNumberHuman-j ==0);
+        count++;
+
+        //побочная диагональ
+        j=0;
+        do {
+            surroundings[count]+=MAP[rowNumberHuman+j][columnNumberHuman-j];
+        } while (j<SIZE-rowNumberHuman || columnNumberHuman-j ==0);
+        j=1;
+        do {
+            surroundings[count]+=MAP[rowNumberHuman-j][columnNumberHuman+j];
+        } while (rowNumberHuman-j == 0 || j<SIZE-columnNumberHuman) ;
+
+        System.out.println(Arrays.toString(surroundings));
+    }
+
+
+    //-----------------------------------------------
 
     private static void humanTurn() {
         int rowNumber;
@@ -238,6 +467,10 @@ public class XandO {
          } while (!isInputValid && !isHumanTurnValid(rowNumber, columnNumber));
 
         MAP[rowNumber][columnNumber] = DOT_HUMAN;
+
+        rowNumberHuman = rowNumber;
+        columnNumberHuman = columnNumber;
+
         turnsCount++;
     }
 
