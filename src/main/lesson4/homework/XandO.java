@@ -113,25 +113,22 @@ public class XandO {
         return turnsCount == SIZE*SIZE;
     }
 
-
-// Новая проверка на выигрыш для любого поля и любой длины выигрышной комбинации (перебором всего и вся)
-    //Можно было бы сделать оптимальнее, если собирать строки и диагонали только на основании хода юзера :(
-
+    //Проверка на выигрыш для любого поля и любой длины выигрышной комбинации
     private static boolean checkWin(char symbol) {
-        int diagonalCount = (1+2*(SIZE-WINLENGTH))*2;//узнаем, сколько на поле есть диагоналей, куда поместится победная комбинация
-        String[] resultLines = new String[SIZE*2];
-        String[] resultDiagonals = new String[diagonalCount+2];//на 2 больше, потому что основная и побочная диагонали задублируются
+        String[] surroundings = new String[4];//массив, куда положим строку, столбец и две диагонали вокруг хода игрока
 
-        initializeResults(resultLines);
-        initializeResults(resultDiagonals);
+        initializeResults(surroundings);//заполним пустыми строками
+        getSurroundings(surroundings);//заполняем данными
 
-        checkLines(resultLines);
-        checkDiagoniles(resultDiagonals);
+        if (findCombination(symbol, surroundings)) return true; //если после хода случилась выигрышная комбинация - то победа
+        else return false;
+    }
 
-        if (findCombination(symbol, resultLines)) return true;
-        else if (findCombination(symbol, resultDiagonals)) return true;
-
-        return false;
+    //инициализации массива строк
+    private static void initializeResults(String[] surroundings) {
+        for (int i = 0; i < surroundings.length; i++) {
+            surroundings[i]="";
+        }
     }
 
     //ищем в массиве строк строку с победной комбинацией
@@ -144,58 +141,6 @@ public class XandO {
         return false;
     }
 
-    //собираем в массив все диагонали, где может быть победная комбинация
-    private static void checkDiagoniles(String[] results) {
-        int count = 0;
-        int j = 0;
-
-        //основные диагонали
-        do {
-            for (int i = 0; i < SIZE-j; i++) {
-                results[count]+=MAP[i][i+j];
-                results[count+1]+=MAP[i+j][i];
-            }
-            j++;
-            count+=2;
-        } while (j<=SIZE-WINLENGTH);
-
-        j = 0;
-
-        //побочные диагонали
-        do {
-            for (int i = 0; i < SIZE-j; i++) {
-                results[count]+=MAP[i][SIZE-i-j-1];
-                results[count+1]+=MAP[i+j][SIZE-i-1];
-            }
-            j++;
-            count+=2;
-        } while (j<=SIZE-WINLENGTH);
-    }
-
-    //собираем в массив все строчки и столбцы поля
-    private static void checkLines(String[] results) {
-        int count = 0;
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
-                results[count] += MAP[i][j];
-            }
-            count++;
-        }
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
-                results[count] += MAP[j][i];
-            }
-            count++;
-        }
-    }
-
-    //инициализации массива строк
-    private static void initializeResults(String[] results) {
-        for (int i = 0; i < results.length; i++) {
-            results[i]="";
-        }
-    }
-
     //на основании заданной длины победной комбинации делаем эталонную строку победы для проверок
     private static String getWinLine(char symbol) {
         String winline = "";
@@ -203,6 +148,47 @@ public class XandO {
             winline+=symbol;
         }
         return winline;
+    }
+
+    //собираем массив, куда положим строку, столбец и две диагонали вокруг хода игрока
+    private static void getSurroundings(String[] surroundings) {
+        int count = 0;
+        int j;
+
+        for (int i = 0; i < SIZE; i++) {
+            surroundings[count]+=MAP[rowNumberHuman][i];
+        }
+        count++;
+
+        for (int i = 0; i < SIZE; i++) {
+            surroundings[count]+=MAP[i][columnNumberHuman];
+        }
+        count++;
+
+        // основная диагональ
+        j = rowNumberHuman-columnNumberHuman;
+        if (j >= 0) {
+            for (int i = j; i < SIZE; i++) {
+                surroundings[count]+=MAP[i][i-j];
+            }
+        } else {
+            for (int i = 0; i < SIZE+j; i++) {
+                surroundings[count]+=MAP[i][i-j];
+            }
+        }
+        count++;
+
+        //побочная диагональ
+        j = rowNumberHuman+columnNumberHuman;
+        if (j < SIZE) {
+            for (int i = 0; i <= j ; i++) {
+                surroundings[count]+=MAP[j-i][i];
+            }
+        } else {
+            for (int i = j-SIZE+1; i < SIZE; i++) {
+                surroundings[count]+=MAP[j-i][i];
+            }
+        }
     }
 
     // --------------------------------------------
