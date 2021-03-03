@@ -113,6 +113,7 @@ public class XandO {
         return turnsCount == SIZE*SIZE;
     }
 
+    //----------------------------------------------------------------------
     //Проверка на выигрыш для любого поля и любой длины выигрышной комбинации
     private static boolean checkWin(char symbol) {
         String[] surroundings = new String[4];//массив, куда положим строку, столбец и две диагонали вокруг хода игрока
@@ -402,9 +403,8 @@ public class XandO {
              } else {
                  processingIncorrectMethod();
                  isInputValid = false;
-                 continue;
              }
-         } while (!isInputValid && !isHumanTurnValid(rowNumber, columnNumber));
+         } while (!isInputValid || !isHumanTurnValid(rowNumber, columnNumber));
 
         MAP[rowNumber][columnNumber] = DOT_HUMAN;
 
@@ -434,7 +434,7 @@ public class XandO {
     }
 
     private static void processingIncorrectMethod() {
-        in.nextLine();
         System.out.println("Ошибка ввода! Введите число в диапазоне размера игрового поля!");
+        in.nextLine();
     }
 }
