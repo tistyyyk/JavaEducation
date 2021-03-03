@@ -79,8 +79,8 @@ public class XandO {
     }
 
     private static void playGame() {
+        turnsCount = 0;
         while (true) {
-            turnsCount = 0;
             //ход человека
             humanTurn();
             printMap();
@@ -115,11 +115,12 @@ public class XandO {
 
 
 // Новая проверка на выигрыш для любого поля и любой длины выигрышной комбинации (перебором всего и вся)
+    //Можно было бы сделать оптимальнее, если собирать строки и диагонали только на основании хода юзера :(
 
     private static boolean checkWin(char symbol) {
-        int diagonalCount = (1+2*(SIZE-WINLENGTH))*2;
+        int diagonalCount = (1+2*(SIZE-WINLENGTH))*2;//узнаем, сколько на поле есть диагоналей, куда поместится победная комбинация
         String[] resultLines = new String[SIZE*2];
-        String[] resultDiagonals = new String[diagonalCount+2];
+        String[] resultDiagonals = new String[diagonalCount+2];//на 2 больше, потому что основная и побочная диагонали задублируются
 
         initializeResults(resultLines);
         initializeResults(resultDiagonals);
@@ -133,6 +134,7 @@ public class XandO {
         return false;
     }
 
+    //ищем в массиве строк строку с победной комбинацией
     private static boolean findCombination(char symbol, String[] results) {
         for (int i = 0; i < results.length; i++) {
             if (results[i].contains(getWinLine(symbol))) {
@@ -142,6 +144,7 @@ public class XandO {
         return false;
     }
 
+    //собираем в массив все диагонали, где может быть победная комбинация
     private static void checkDiagoniles(String[] results) {
         int count = 0;
         int j = 0;
@@ -169,6 +172,7 @@ public class XandO {
         } while (j<=SIZE-WINLENGTH);
     }
 
+    //собираем в массив все строчки и столбцы поля
     private static void checkLines(String[] results) {
         int count = 0;
         for (int i = 0; i < SIZE; i++) {
@@ -185,12 +189,14 @@ public class XandO {
         }
     }
 
+    //инициализации массива строк
     private static void initializeResults(String[] results) {
         for (int i = 0; i < results.length; i++) {
             results[i]="";
         }
     }
 
+    //на основании заданной длины победной комбинации делаем эталонную строку победы для проверок
     private static String getWinLine(char symbol) {
         String winline = "";
         for (int i = 0; i < WINLENGTH; i++) {
@@ -206,21 +212,23 @@ public class XandO {
 
         System.out.println("Ход компьютера:");
 
+        //после каждого хода юзера анализируем ситуацию
         updateDangerMap();
         analyzeHumanTurn();
 
         MAP[rowNumberAI][columnNumberAI] = DOT_AI;
-
         turnsCount++;
     }
 
+    //Выбор стратегии заполнения
     private static void analyzeHumanTurn() {
 
-        if (!isDangerousSituation()) {
-            searchForMaxDangerousPlace();
+        if (!isDangerousSituation()) { //если не собирается ряд из 2+ крестиков игрока
+            searchForMaxDangerousPlace(); //то делаем ход на основании таблицы опасных мест
         }
     }
 
+    // Функция, которая рассматривает мапу опасности и делает ход в одну из "опаснейших" ячеек
     private static void searchForMaxDangerousPlace() {
         int max = 0;
         int row = 0;
@@ -240,107 +248,109 @@ public class XandO {
         columnNumberAI = column;
     }
 
+    //Функция, которая проверяет, есть ли "опасная ситуация" - рядом с крестиком игрока стоит еще крестик
     private static boolean isDangerousSituation() {
         char[][] tempMap = new char[SIZE+2][SIZE+2];
         int row = rowNumberHuman+1;
         int column = columnNumberHuman+1;
-
+// Заполняем временную мапу, которая нужна для удобства сравнения
         for (int i = 0; i < SIZE; i++){
             for (int j = 0; j < SIZE; j++) {
                 tempMap[i+1][j+1] = MAP[i][j];
             }
         }
 
-        if (DOT_HUMAN == tempMap[row - 1][column - 1] && findPlace(1)) {
+        if (DOT_HUMAN == tempMap[row - 1][column - 1] && findPlace(1)) {//на основной диагонали выше уже есть Х
             return true;
-        } else if (DOT_HUMAN == tempMap[row - 1][column] && findPlace(2)) {
+        } else if (DOT_HUMAN == tempMap[row - 1][column] && findPlace(2)) {//строкой выше есть Х
             return true;
-        } else if (DOT_HUMAN == tempMap[row][column - 1] && findPlace(3)) {
+        } else if (DOT_HUMAN == tempMap[row][column - 1] && findPlace(3)) {//в ряду ранее есть Х
             return true;
-        } else if (DOT_HUMAN == tempMap[row + 1][column + 1] && findPlace(4)) {
+        } else if (DOT_HUMAN == tempMap[row + 1][column + 1] && findPlace(4)) {//на основной диагонали ниже есть Х
             return true;
-        } else if (DOT_HUMAN == tempMap[row + 1][column] && findPlace(5)) {
+        } else if (DOT_HUMAN == tempMap[row + 1][column] && findPlace(5)) {//строкой ниже есть Х
             return true;
-        } else if (DOT_HUMAN == tempMap[row][column + 1] && findPlace(6)) {
+        } else if (DOT_HUMAN == tempMap[row][column + 1] && findPlace(6)) {//в ряду впереди есть Х
             return true;
-        } else if (DOT_HUMAN == tempMap[row + 1][column - 1] && findPlace(7)) {
+        } else if (DOT_HUMAN == tempMap[row + 1][column - 1] && findPlace(7)) {//на побочной диагонали ниже есть Х
             return true;
-        } else if (DOT_HUMAN == tempMap[row - 1][column + 1] && findPlace(8)) {
+        } else if (DOT_HUMAN == tempMap[row - 1][column + 1] && findPlace(8)) {//на побочной диагонали выше есть Х
             return true;
         } else {
-            return false;
+            return false;//опасной ситуации нет
         }
     }
 
+    //Функция, которая думает, куда ставить 0, если в строке или диагонали есть два Х
     private static boolean findPlace(int i) {
         int row = 0;
         int column =0;
         switch (i) {
-            case (1):
-                if (rowNumberHuman+1 < SIZE && columnNumberHuman+1 < SIZE) {
+            case (1)://на основной диагонали выше уже есть Х
+                if (rowNumberHuman+1 < SIZE && columnNumberHuman+1 < SIZE) {//далее по диагонали поле не закончилось?
                     row = rowNumberHuman+1;
                     column = columnNumberHuman+1;
-                } else {
+                } else if (rowNumberHuman-2 >= 0 && columnNumberHuman-2 >= 0) {//а ранее по диагонали поле не закончилось?
                     row = rowNumberHuman-2;
                     column = columnNumberHuman-2;
-                }
+                } //иначе ничего не делаем, вероятно это мелкая диагональ
                 break;
-            case (2):
+            case (2)://строкой выше есть Х
                 if (rowNumberHuman+1 < SIZE) {
                     row = rowNumberHuman+1;
-                } else {
+                } else if (rowNumberHuman-2 >= 0) {//в строках и столбцах проверки избыточны, но для порядка пусть будут
                     row = rowNumberHuman-2;
                 }
                 column = columnNumberHuman;
                 break;
-            case (3):
+            case (3)://в ряду ранее есть Х
                 if (columnNumberHuman+1 < SIZE) {
                     column = columnNumberHuman+1;
-                } else {
+                } else if (columnNumberHuman-2 >= 0) {
                     column = columnNumberHuman-2;
                 }
                 row = rowNumberHuman;
                 break;
-            case (4):
+            case (4)://на основной диагонали ниже есть Х
                 if (columnNumberHuman-1 >= 0 && rowNumberHuman-1 >=0) {
                     row = rowNumberHuman-1;
                     column = columnNumberHuman-1;
-                } else {
+                } else if (rowNumberHuman+2 < SIZE && columnNumberHuman+2 < SIZE) {
                     row = rowNumberHuman+2;
                     column = columnNumberHuman+2;
                 }
                 break;
-            case (5):
+            case (5)://строкой ниже есть Х
                 if (rowNumberHuman-1 >=0) {
                     row = rowNumberHuman-1;
-                } else {
+                } else if (rowNumberHuman+2 < SIZE) {
                     row = rowNumberHuman+2;
                 }
                 column = columnNumberHuman;
                 break;
-            case (6):
+            case (6)://в ряду впереди есть Х
                 if (columnNumberHuman-1 >=0) {
                     row = rowNumberHuman;
                     column = columnNumberHuman-1;
-                } else {
+                } else if (columnNumberHuman+2 < SIZE) {
                     row = rowNumberHuman;
                     column = columnNumberHuman+2;
                 }
                 break;
-            case (7):
+            case (7)://на побочной диагонали ниже есть Х
                 if (rowNumberHuman-1 >=0 && columnNumberHuman+1 < SIZE) {
                     row = rowNumberHuman-1;
                     column = columnNumberHuman+1;
-                } else {
+                } else if (rowNumberHuman+2 < SIZE && columnNumberHuman-2 >= 0) {
                     row = rowNumberHuman+2;
                     column = columnNumberHuman-2;
                 }
                 break;
-            case (8):
+            case (8)://на побочной диагонали выше есть Х
                 if (columnNumberHuman-1 >=0 && rowNumberHuman+1 < SIZE) {
                     row = rowNumberHuman+1;
                     column = columnNumberHuman-1;
-                } else {
+                } else if (columnNumberHuman+2 < SIZE && rowNumberHuman-2 >= 0){
                     row = rowNumberHuman-2;
                     column = columnNumberHuman+2;
                 }
@@ -348,18 +358,20 @@ public class XandO {
             default:
                 break;
         }
-        if (isCellOccupancy(row,column)) {
+        if (isCellOccupancy(row,column)) { //если что-то нашли, нужно проверить, не стоит ли там уже символ
             rowNumberAI = row;
             columnNumberAI = column;
             return true;
         } else return false;
     }
 
+    //Функция, которая делает такое же поле, как игровое, но где каждая ячейка имеет "индекс опасности"
     private static void updateDangerMap() {
-        int[][] tempMap = new int[SIZE+2][SIZE+2];
+        int[][] tempMap = new int[SIZE+2][SIZE+2];//временная мама побольше, чтобы не добавлять 100500 if'ов для определения границ поля
         int row = rowNumberHuman+1;
         int column = columnNumberHuman+1;
 
+        //увеличиваем индекс опасности ячейкам, которые вокруг ячейки, куда юзер поставил Х
         tempMap[row-1][column-1]++;
         tempMap[row-1][column]++;
         tempMap[row][column-1]++;
@@ -369,6 +381,7 @@ public class XandO {
         tempMap[row+1][column-1]++;
         tempMap[row-1][column+1]++;
 
+        //обрезаем временную мапу под размеры поля и получаем мапу опасности
         for (int i = 0; i < SIZE; i++){
             for (int j = 0; j < SIZE; j++) {
                 dangerMap[i][j]+=tempMap[i+1][j+1];
