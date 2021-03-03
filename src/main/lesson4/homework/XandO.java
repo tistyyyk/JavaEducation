@@ -1,7 +1,5 @@
 package main.lesson4.homework;
 
-import java.util.Arrays;
-import java.util.Random;
 import java.util.Scanner;
 
 public class XandO {
@@ -27,7 +25,7 @@ public class XandO {
     static int rowNumberAI;
     static int columnNumberAI;
 
-    static final int[][] dangerMap = new int[SIZE+2][SIZE+2];
+    static final int[][] dangerMap = new int[SIZE][SIZE];
 
     public static void main(String[] args) {
         turnGame();
@@ -369,9 +367,9 @@ public class XandO {
         tempMap[row-1][column+1]++;
 
         //обрезаем временную мапу под размеры поля и получаем мапу опасности
-        for (int i = 0; i < SIZE; i++){
+        for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
-                dangerMap[i][j]+=tempMap[i+1][j+1];
+                dangerMap[i][j] += tempMap[i + 1][j + 1];
             }
         }
     }
