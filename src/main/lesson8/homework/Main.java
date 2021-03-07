@@ -7,14 +7,13 @@ public class Main {
     public static void main(String[] args) {
         Random random = new Random();
         int barriersCount = 5;
-
-
+        
         Cat cat = new Cat();
         Human human = new Human();
         Robot robot = new Robot();
 
         IParticipant[] participants = {cat, human, robot};
-        IBarrier[] barriers = new IBarrier[5];
+        IBarrier[] barriers = new IBarrier[barriersCount];
 
         makeRace(random, barriers);//создаем трассу из рандомных препятствий рандомной величины
         System.out.println(Arrays.toString(barriers));
